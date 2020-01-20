@@ -30,6 +30,7 @@ MSYS2 (http://www.msys2.org)
 
 License
 -------
+	Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
 	Copyright (c) 2020 vasconssa
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
