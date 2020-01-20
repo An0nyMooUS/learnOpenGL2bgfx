@@ -5,7 +5,7 @@
 
 function crown_project(_name, _kind, _defines)
 
-	project ("crown" .. _name)
+	project ("learnOpenGL2bgfx" .. _name)
 		kind (_kind)
 
 		includedirs {
