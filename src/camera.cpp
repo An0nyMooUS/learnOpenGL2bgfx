@@ -90,9 +90,12 @@ namespace crown {
         float dy = delta.y;
 
         Quaternion rotation_around_world_up = quaternion(vector3(0, 1, 0), rotation_speed*dx*dt);
+		normalize(rotation_around_world_up);
         Quaternion rotation_around_camera_right = quaternion(vector3(1, 0, 0), rotation_speed*dy*dt);
+		normalize(rotation_around_camera_right);
 
-        cam.pose.rotation *= rotation_around_world_up * rotation_around_camera_right;
+        cam.pose.rotation = rotation_around_world_up * cam.pose.rotation * rotation_around_camera_right;
+		normalize(cam.pose.rotation);
 
         if (wkey) cam.pose.position += forward(cam.pose.rotation)*translation_speed;
         if (skey) cam.pose.position -= forward(cam.pose.rotation)*translation_speed;
