@@ -70,6 +70,9 @@ namespace rendererbasiclighting {
 	static bgfx::VertexBufferHandle vbh_lamp;
 	static bgfx::UniformHandle object_color;
 	static bgfx::UniformHandle light_color;
+	static bgfx::UniformHandle light_position;
+	static bgfx::UniformHandle inv_model;
+	static bgfx::UniformHandle view_pos;
 	static bgfx::VertexLayout layout_cube;
 	static bgfx::VertexLayout layout_light;
 	static Vector3 light_pos = vector3(1.2, 1.0, 2.0);
@@ -117,6 +120,9 @@ namespace rendererbasiclighting {
 				);
 		object_color = bgfx::createUniform("object_color", bgfx::UniformType::Vec4);
 		light_color = bgfx::createUniform("light_color", bgfx::UniformType::Vec4);
+		light_position = bgfx::createUniform("light_pos", bgfx::UniformType::Vec4);
+		inv_model = bgfx::createUniform("inv_model", bgfx::UniformType::Mat4);
+		view_pos = bgfx::createUniform("view_position", bgfx::UniformType::Vec4);
 
 		bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
 		
@@ -141,8 +147,12 @@ namespace rendererbasiclighting {
 		bgfx::setTransform(to_float_ptr(model));
 		Vector4 obj_color = vector4(1.0, 0.5, 0.31, 1.0);
 		Vector4 lgt_color = vector4(1.0, 1.0, 1.0, 1.0);
+		Vector4 lgt_pos = vector4(light_pos.x, light_pos.y, light_pos.z, 1.0);
 		bgfx::setUniform(object_color, to_float_ptr(obj_color));
 		bgfx::setUniform(light_color, to_float_ptr(lgt_color));
+		bgfx::setUniform(light_position, to_float_ptr(lgt_pos));
+		bgfx::setUniform(inv_model, to_float_ptr(get_inverted(model)));
+		bgfx::setUniform(view_pos, to_float_ptr(cam.pose.position));
 
 		bgfx::setVertexBuffer(0, vbh_cube);
 		bgfx::setState(BGFX_STATE_DEFAULT ^ BGFX_STATE_CULL_CW);
