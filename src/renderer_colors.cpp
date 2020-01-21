@@ -65,18 +65,6 @@ namespace renderercolors {
         -0.5f,  0.5f,  -0.5f,
         -0.5f,  0.5f, 0.5f
     };
-    Vector3 v[] = {
-                      vector3( 0.0,  0.0,  0.0), 
-                      vector3( 2.0,  5.0, 15.0), 
-                      vector3(-1.5, -2.2, 2.5),  
-                      vector3(-3.8, -2.0, 12.3),  
-                      vector3( 2.4, -0.4, 3.5),  
-                      vector3(-1.7,  3.0, 7.5),  
-                      vector3( 1.3, -2.0, 2.5),  
-                      vector3( 1.5,  2.0, 2.5), 
-                      vector3( 1.5,  0.2, 1.5), 
-                      vector3(-1.3,  1.0, 1.5)  };
-	Array<Vector3> *cubePositions;
 
 	static bgfx::ProgramHandle program_cube;
 	static bgfx::ProgramHandle program_lamp;
@@ -86,23 +74,16 @@ namespace renderercolors {
 	static bgfx::UniformHandle light_color;
 	static bgfx::VertexLayout layout;
 	static Camera cam;
-	Vector3 light_pos = vector3(1.2f, 1.0f, 2.0f);
+	static Vector3 light_pos = vector3(1.2, 1.0, 2.0);
 
 	void init (u16 width, u16 height) 
 	{
-		const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
-		const bx::Vec3 eye = {0.0f, 0.0f, -10.0f};
 		f32 aspect = (float)width/(float)height;
 		Vector3 pos = vector3(0.0f, 0.0f, -10.0f);
-		float view[16];
-		bx::mtxLookAt(view, eye, at);
-		Quaternion rotation = quaternion(to_matrix3x3(get_inverted(matrix4x4(view))));
-		rotation = QUATERNION_IDENTITY;
+		Quaternion rotation = QUATERNION_IDENTITY;
 		Pose pose = {pos, rotation};
 		CameraDesc cam_desc = {ProjectionType::PERSPECTIVE, 45.0, 0.1, 100.0};
 		cam = camera_create(cam_desc, pose, aspect);
-		cubePositions = CE_NEW(default_allocator(), Array<Vector3>)(default_allocator());
-		array::push(*cubePositions, v, 10);
 
 		ShaderManager sm;
 		program_cube = sm.compile(
