@@ -8,7 +8,7 @@
 #include "core/math/types.h"
 #include "core/math/color4.h"
 #include "core/math/vector3.h"
-#include "core/math/matrx4x4.h"
+#include "core/math/matrix4x4.h"
 #include "core/math/quaternion.h"
 #include "core/time.h"
 #include "camera.h"
@@ -61,7 +61,7 @@ namespace rendererbasiclighting {
          0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f
     };
 
 	static bgfx::ProgramHandle program_cube;
@@ -73,16 +73,16 @@ namespace rendererbasiclighting {
 	static bgfx::VertexLayout layout_cube;
 	static bgfx::VertexLayout layout_light;
 	static Vector3 light_pos = vector3(1.2, 1.0, 2.0);
+    static Camera cam;
 
 	void init (u16 width, u16 height) 
 	{
-		const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
-		const bx::Vec3 eyw = {0.0f, 0.0f, -10.0f};
 		f32 aspect = (float)width/(float)height;
 		Vector3 pos = vector3(0.0f, 0.0f, -10.0f);
-		float view[16];
-		bx::mtxLookAt(view, eye, at);
 		Quaternion rotation = QUATERNION_IDENTITY;
+		Pose pose = {pos, rotation};
+		CameraDesc cam_desc = {ProjectionType::PERSPECTIVE, 45.0, 0.1, 100.0};
+		cam = camera_create(cam_desc, pose, aspect);
 
 		ShaderManager sm;
 		program_cube = sm.compile(
@@ -98,23 +98,25 @@ namespace rendererbasiclighting {
 
 		layout_cube
 			.begin()
-				.add(bgfx::Attrib::Position, 3, bgfx::Attrib::Float)
-				.add(bgfx::Attrib::Normal, 3, bgfx::Attrib::Float)
+				.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+				.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
 			.end();
 		layout_light
 			.begin()
-				.add(bgfx::Attrib::Position, 3 bgfx::Attrib::Float)
-				.skip(3)
+				.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+				.skip(3 * sizeof(bgfx::AttribType::Float))
 			.end();
 
 		vbh_cube = bgfx::createVertexBuffer(
 				bgfx::makeRef(vertices, sizeof(vertices)),
 				layout_cube
 				);
-		vbh_cube = bgfx::createVertexBuffer(
+		vbh_lamp = bgfx::createVertexBuffer(
 				bgfx::makeRef(vertices, sizeof(vertices)),
 				layout_light
 				);
+		object_color = bgfx::createUniform("object_color", bgfx::UniformType::Vec4);
+		light_color = bgfx::createUniform("light_color", bgfx::UniformType::Vec4);
 
 		bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
 		
