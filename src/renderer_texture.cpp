@@ -51,7 +51,6 @@ namespace crown {
             //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             th1 = bgfx::createTexture2D(w, h, false, 1, bgfx::TextureFormat::RGB8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, im);
             th2 = bgfx::createTexture2D(w2, h2, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, im2);
-            printf("chegou w: %d\n", nrChannels2);
             //glGenerateMipmap(GL_TEXTURE_2D);
         }
         else

@@ -10,5 +10,6 @@ __pycache__
 
 # Ignore BGFX build directory
 3rdparty/bgfx/.build
+.clangd/
 
 compile_commands.json
