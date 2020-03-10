@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #include "core/error/error.h"
+#include "core/math/constants.h"
 #include "core/math/math.h"
-#include "core/math/vector3.h"
+#include "core/math/vector3.inl"
 #include "core/memory/allocator.h"
-#include "core/memory/memory.h"
-#include "core/strings/string.h"
-#include "core/strings/string_id.h"
+#include "core/memory/memory.inl"
+#include "core/strings/string.inl"
+#include "core/strings/string_id.inl"
 #include "device/input_device.h"
 #include <string.h> // strcpy, memset
 

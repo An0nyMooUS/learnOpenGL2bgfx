@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -73,10 +73,20 @@ struct WriteResult
 /// @ingroup Network
 struct TCPSocket
 {
+	struct Private* _priv;
 	CE_ALIGN_DECL(16, u8 _data[8]);
 
 	///
 	TCPSocket();
+
+	///
+	TCPSocket(const TCPSocket& other);
+
+	///
+	TCPSocket& operator=(const TCPSocket& other);
+
+	///
+	~TCPSocket();
 
 	/// Closes the socket.
 	void close();

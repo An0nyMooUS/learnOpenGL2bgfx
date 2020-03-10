@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
-#include "core/math/math.h"
 #include "core/math/types.h"
-#include "core/math/vector3.h"
 
 namespace crown
 {
@@ -33,32 +31,6 @@ namespace sphere
 
 	/// Returns whether point @a p is contained into the sphere.
 	bool contains_point(const Sphere& s, const Vector3& p);
-
-} // namespace sphere
-
-namespace sphere
-{
-	inline void reset(Sphere& s)
-	{
-		s.c = VECTOR3_ZERO;
-		s.r = 0.0f;
-	}
-
-	inline f32 volume(const Sphere& s)
-	{
-		return (4.0f/3.0f*PI) * (s.r*s.r*s.r);
-	}
-
-	inline void add_points(Sphere& s, u32 num, const Vector3* points)
-	{
-		add_points(s, num, sizeof(Vector3), points);
-	}
-
-	inline bool contains_point(const Sphere& s, const Vector3& p)
-	{
-		f32 dist = length_squared(p - s.c);
-		return dist < s.r*s.r;
-	}
 
 } // namespace sphere
 

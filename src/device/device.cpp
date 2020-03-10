@@ -4,26 +4,32 @@
  */
 
 #include "config.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_apk.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
-#include "core/json/json_object.h"
+#include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/vector3.h"
-#include "core/memory/memory.h"
+#include "core/list.inl"
+#include "core/math/constants.h"
+#include "core/math/matrix4x4.inl"
+#include "core/math/vector3.inl"
+#include "core/memory/globals.h"
 #include "core/memory/proxy_allocator.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/network/ip_address.h"
+#include "core/network/socket.h"
 #include "core/os.h"
-#include "core/strings/string.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string.inl"
+#include "core/strings/string_id.inl"
+#include "core/strings/string_stream.inl"
 #include "core/time.h"
 #include "core/types.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include <bgfx/bgfx.h>
@@ -159,8 +165,6 @@ bool Device::process_events(bool vsync)
 	OsEvent event;
 	while (next_event(event))
 	{
-		if (event.type == OsEventType::NONE)
-			continue;
 
 		switch (event.type)
 		{
@@ -238,7 +242,6 @@ void Device::run()
 		, 0
 		);
 	_window->set_title("tutorial");
-    _window->set_cursor_mode(CursorMode::DISABLED);
 	//_window->set_fullscreen(_boot_config.fullscreen);
 	_window->bgfx_setup();
 
@@ -261,6 +264,7 @@ void Device::run()
     rendererlightingmap::init(_width, _height);
 
     bgfx::setViewRect(0, 0, 0, uint16_t(_width), uint16_t(_width));
+    _window->set_cursor_mode(CursorMode::DISABLED);
     while (!process_events(true) && !_quit)
     {
         const s64 time = time::now();

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
+#include "core/containers/array.inl"
 #include "core/filesystem/path.h"
 #include "core/platform.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 #include <ctype.h>  // isalpha
 #include <string.h> // strrchr
 

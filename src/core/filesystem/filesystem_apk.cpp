@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -7,12 +7,12 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem_apk.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 
 namespace crown
 {
@@ -21,7 +21,7 @@ struct FileApk : public File
 	AAssetManager* _asset_manager;
 	AAsset* _asset;
 
-	FileApk(AAssetManager* asset_manager)
+	explicit FileApk(AAssetManager* asset_manager)
 		: _asset_manager(asset_manager)
 		, _asset(NULL)
 	{
@@ -165,21 +165,24 @@ u64 FilesystemApk::last_modified_time(const char* path)
 CreateResult FilesystemApk::create_directory(const char* /*path*/)
 {
 	CE_FATAL("Cannot create directory in Android assets folder");
-	CreateResult cr.error = CreateResult::UNKNOWN;
+	CreateResult cr;
+	cr.error = CreateResult::UNKNOWN;
 	return cr;
 }
 
 DeleteResult FilesystemApk::delete_directory(const char* /*path*/)
 {
 	CE_FATAL("Cannot delete directory in Android assets folder");
-	DeleteResult dr.error = DeleteResult::UNKNOWN;
+	DeleteResult dr;
+	dr.error = DeleteResult::UNKNOWN;
 	return dr;
 }
 
 DeleteResult FilesystemApk::delete_file(const char* /*path*/)
 {
 	CE_FATAL("Cannot delete file in Android assets folder");
-	DeleteResult dr.error = DeleteResult::UNKNOWN;
+	DeleteResult dr;
+	dr.error = DeleteResult::UNKNOWN;
 	return dr;
 }
 
@@ -202,7 +205,7 @@ void FilesystemApk::list_files(const char* path, Vector<DynamicString>& files)
 	AAssetDir_close(root_dir);
 }
 
-void FilesystemApk::get_absolute_path(const char* path, DynamicString& os_path)
+void FilesystemApk::absolute_path(DynamicString& os_path, const char* path)
 {
 	os_path = path;
 }

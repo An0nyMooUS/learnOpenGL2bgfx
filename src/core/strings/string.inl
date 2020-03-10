@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
-#include "core/error/error.h"
+#include "core/error/error.inl"
 #include "core/platform.h"
 #include "core/types.h"
 #include <ctype.h> // isspace

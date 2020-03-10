@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -7,11 +7,11 @@
 
 #if CROWN_PLATFORM_LINUX
 
-#include "core/containers/hash_map.h"
+#include "core/containers/hash_map.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
 #include <dirent.h> // opendir, readdir
 #include <errno.h>
@@ -34,7 +34,7 @@ struct FileMonitorImpl
 	FileMonitorFunction _function;
 	void* _user_data;
 
-	FileMonitorImpl(Allocator& a)
+	explicit FileMonitorImpl(Allocator& a)
 		: _allocator(&a)
 		, _fd(0)
 		, _watches(a)
@@ -71,31 +71,37 @@ struct FileMonitorImpl
 		hash_map::set(_watches_reverse, str, wd);
 
 		// Add all sub-dirs recursively
-		DIR *dir;
+		if (recursive)
+			add_subdirectories(path);
+	}
+
+	void add_subdirectories(const char* path)
+	{
 		struct dirent *entry;
 
-		if (!(dir = opendir(path)))
-			return;
-
-		while ((entry = readdir(dir)))
+		DIR *dir = opendir(path);
+		if (dir != NULL)
 		{
-			const char* dname = entry->d_name;
+			while ((entry = readdir(dir)))
+			{
+				const char* dname = entry->d_name;
 
-			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
-				continue;
+				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
+					continue;
 
-			// FIXME: some filesystems do not support DT_DIR.
-			if (entry->d_type != DT_DIR)
-				continue;
+				// FIXME: some filesystems do not support DT_DIR.
+				if (entry->d_type != DT_DIR)
+					continue;
 
-			TempAllocator512 ta;
-			DynamicString str(ta);
-			path::join(str, path, dname);
+				TempAllocator512 ta;
+				DynamicString str(ta);
+				path::join(str, path, dname);
 
-			add_watch(str.c_str(), recursive);
+				add_watch(str.c_str(), true);
+			}
+
+			closedir(dir);
 		}
-
-		closedir(dir);
 	}
 
 	void start(u32 num, const char** paths, bool recursive, FileMonitorFunction fmf, void* user_data)
@@ -112,12 +118,14 @@ struct FileMonitorImpl
 		for (u32 i = 0; i < num; ++i)
 			add_watch(paths[i], recursive);
 
-		_thread.start([](void* thiz) { return ((FileMonitorImpl*)thiz)->watch(); }, this);
+		_thread.start([](void* thiz) { return static_cast<FileMonitorImpl*>(thiz)->watch(); }, this);
 	}
 
 	void stop()
 	{
 		_exit = true;
+		_thread.stop();
+
 		close(_fd);
 	}
 

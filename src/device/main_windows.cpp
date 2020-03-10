@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -8,13 +8,17 @@
 #if CROWN_PLATFORM_WINDOWS
 
 #include "core/command_line.h"
+#include "core/containers/array.inl"
 #include "core/guid.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/thread/thread.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include "resource/data_compiler.h"
 #include <bgfx/platform.h>
+#include <stdio.h>    // FILE, freopen_s, stdio etc.
 #include <winsock2.h>
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <xinput.h>
@@ -291,10 +295,16 @@ struct WindowsDevice
 	HCURSOR _hcursor;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
+	s16 _mouse_last_x;
+	s16 _mouse_last_y;
+	CursorMode::Enum _cursor_mode;
 
 	WindowsDevice()
 		: _hwnd(NULL)
 		, _hcursor(NULL)
+		, _mouse_last_x(INT16_MAX)
+		, _mouse_last_y(INT16_MAX)
+		, _cursor_mode(CursorMode::NORMAL)
 	{
 	}
 
@@ -408,6 +418,12 @@ struct WindowsDevice
 			{
 				u32 width  = GET_X_LPARAM(lparam);
 				u32 height = GET_Y_LPARAM(lparam);
+				if (_cursor_mode == CursorMode::DISABLED)
+				{
+					RECT clipRect;
+					GetWindowRect(_hwnd, &clipRect);
+					ClipCursor(&clipRect);
+				}
 				_queue.push_resolution_event(width, height);
 			}
 			break;
@@ -445,6 +461,44 @@ struct WindowsDevice
 			{
 				s32 mx = GET_X_LPARAM(lparam);
 				s32 my = GET_Y_LPARAM(lparam);
+				s16 deltax = mx - (_mouse_last_x == INT16_MAX ? mx : _mouse_last_x);
+				s16 deltay = my - (_mouse_last_y == INT16_MAX ? my : _mouse_last_y);
+				if (_cursor_mode == CursorMode::DISABLED)
+				{
+					RECT clipRect;
+					GetWindowRect(_hwnd, &clipRect);
+					unsigned width = clipRect.right - clipRect.left;
+					unsigned height = clipRect.bottom - clipRect.top;
+
+					if (mx != (s32)width/2 || my != (s32)height/2)
+					{
+						_queue.push_axis_event(InputDeviceType::MOUSE
+							, 0
+							, MouseAxis::CURSOR_DELTA
+							, deltax
+							, deltay
+							, 0
+							);
+						POINT mouse_pos = {(long)width/2, (long)height/2};
+						ClientToScreen(_hwnd, &mouse_pos);
+						SetCursorPos(mouse_pos.x, mouse_pos.y);
+						_mouse_last_x = (s16)width/2;
+						_mouse_last_y = (s16)height/2;
+
+					}
+				}
+				else if (_cursor_mode == CursorMode::NORMAL)
+				{
+					_queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::CURSOR_DELTA
+						, deltax
+						, deltay
+						, 0
+						);
+					_mouse_last_x = (s16)mx;
+					_mouse_last_y = (s16)my;
+				}
 				_queue.push_axis_event(InputDeviceType::MOUSE
 					, 0
 					, MouseAxis::CURSOR
@@ -548,20 +602,17 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 
 struct WindowWin : public Window
 {
-	HWND _hwnd;
 	u16 _x;
 	u16 _y;
 	u16 _width;
 	u16 _height;
 
 	WindowWin()
-		: _hwnd(NULL)
-		, _x(0)
+		: _x(0)
 		, _y(0)
 		, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 		, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	{
-		_hwnd = s_wdvc._hwnd;
 	}
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 /*parent*/)
@@ -578,18 +629,18 @@ struct WindowWin : public Window
 	{
 		bgfx::PlatformData pd;
 		memset(&pd, 0, sizeof(pd));
-		pd.nwh = _hwnd;
+		pd.nwh = s_wdvc._hwnd;
 		bgfx::setPlatformData(pd);
 	}
 
 	void show()
 	{
-		ShowWindow(_hwnd, SW_SHOW);
+		ShowWindow(s_wdvc._hwnd, SW_SHOW);
 	}
 
 	void hide()
 	{
-		ShowWindow(_hwnd, SW_HIDE);
+		ShowWindow(s_wdvc._hwnd, SW_HIDE);
 	}
 
 	void resize(u16 width, u16 height)
@@ -604,7 +655,7 @@ struct WindowWin : public Window
 		rect.bottom = _height;
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-		MoveWindow(_hwnd
+		MoveWindow(s_wdvc._hwnd
 			, _x
 			, _y
 			, rect.right - rect.left
@@ -622,30 +673,30 @@ struct WindowWin : public Window
 
 	void minimize()
 	{
-		ShowWindow(_hwnd, SW_MINIMIZE);
+		ShowWindow(s_wdvc._hwnd, SW_MINIMIZE);
 	}
 
 	void maximize()
 	{
-		ShowWindow(_hwnd, SW_MAXIMIZE);
+		ShowWindow(s_wdvc._hwnd, SW_MAXIMIZE);
 	}
 
 	void restore()
 	{
-		ShowWindow(_hwnd, SW_RESTORE);
+		ShowWindow(s_wdvc._hwnd, SW_RESTORE);
 	}
 
 	const char* title()
 	{
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
-		GetWindowText(_hwnd, buf, sizeof(buf));
+		GetWindowText(s_wdvc._hwnd, buf, sizeof(buf));
 		return buf;
 	}
 
 	void set_title (const char* title)
 	{
-		SetWindowText(_hwnd, title);
+		SetWindowText(s_wdvc._hwnd, title);
 	}
 
 	void show_cursor(bool show)
@@ -664,9 +715,38 @@ struct WindowWin : public Window
 		SetCursor(s_wdvc._hcursor);
 	}
 
+	void set_cursor_mode(CursorMode::Enum mode)
+	{
+		if (mode == s_wdvc._cursor_mode)
+			return;
+		s_wdvc._cursor_mode = mode;
+
+		if (mode == CursorMode::DISABLED)
+		{
+			RECT clipRect;
+			GetWindowRect(s_wdvc._hwnd, &clipRect);
+			unsigned width = clipRect.right - clipRect.left;
+			unsigned height = clipRect.bottom - clipRect.top;
+
+			s_wdvc._mouse_last_x = width/2;
+			s_wdvc._mouse_last_y = height/2;
+			POINT mouse_pos = {(long)width/2, (long)height/2};
+			ClientToScreen(s_wdvc._hwnd, &mouse_pos);
+			SetCursorPos(mouse_pos.x, mouse_pos.y);
+
+			show_cursor(false);
+			ClipCursor(&clipRect);
+		}
+		else if (mode == CursorMode::NORMAL)
+		{
+			show_cursor(true);
+			ClipCursor(NULL);
+		}
+	}
+
 	void* handle()
 	{
-		return (void*)(uintptr_t)_hwnd;
+		return (void*)(uintptr_t)s_wdvc._hwnd;
 	}
 };
 
@@ -735,6 +815,17 @@ int main(int argc, char** argv)
 {
 	using namespace crown;
 
+	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0)
+	{
+		FILE* fpstdin = stdin;
+		FILE* fpstdout = stdout;
+		FILE* fpstderr = stderr;
+
+		freopen_s(&fpstdin, "CONIN$", "r", stdin);
+		freopen_s(&fpstdout, "CONOUT$", "w", stdout);
+		freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+	}
+
 	WSADATA wsdata;
 	int err = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	CE_ASSERT(err == 0, "WSAStartup: error = %d", err);
@@ -759,16 +850,19 @@ int main(int argc, char** argv)
 	if (quit)
 		return ec;
 
+#if CROWN_CAN_COMPILE
 	if (ec == EXIT_SUCCESS && (opts._do_compile || opts._server))
 	{
 		ec = main_data_compiler(opts);
 		if (!opts._do_continue)
 			return ec;
 	}
+#endif
 
 	if (ec == EXIT_SUCCESS)
 		ec = s_wdvc.run(&opts);
 
+	FreeConsole();
 	WSACleanup();
 	return ec;
 }

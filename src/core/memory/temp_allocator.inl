@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -11,7 +11,8 @@
 #pragma once
 
 #include "core/memory/allocator.h"
-#include "core/memory/memory.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 
 namespace crown
 {

@@ -1,13 +1,16 @@
 #include "shader_manager.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/process.h"
 #include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 #include "core/types.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/filesystem/path.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
+#include <stdio.h>
 
 
 namespace crown {

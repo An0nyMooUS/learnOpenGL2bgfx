@@ -7,6 +7,7 @@ uniform vec4 light_pos;
 uniform vec4 view_position;
 
 SAMPLER2D(diffuse, 0);
+SAMPLER2D(specular, 1);
 uniform vec4 specular_shininess;
 uniform vec4 light_ambient;
 uniform vec4 light_diffuse;
@@ -24,7 +25,7 @@ void main() {
 	vec3 view_dir = normalize(view_position.xyz - v_fragPos);
 	vec3 reflect_dir = reflect(-light_dir, norm);
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), specular_shininess.w);
-	vec3 specular = (specular_shininess.xyz * spec) * light_specular.xyz;
+	vec3 specular = spec * light_specular.xyz * texture2D(specular, v_texcoord0).xyz;
 
 	vec3 result = ambient + diff + specular;
 	gl_FragColor = vec4(result, 1.0);

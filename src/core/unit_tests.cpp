@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -8,32 +8,33 @@
 #if CROWN_BUILD_UNIT_TESTS
 
 #include "core/command_line.h"
-#include "core/containers/array.h"
-#include "core/containers/hash_map.h"
-#include "core/containers/hash_set.h"
-#include "core/containers/vector.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
+#include "core/containers/hash_set.inl"
+#include "core/containers/vector.inl"
 #include "core/filesystem/path.h"
 #include "core/guid.h"
 #include "core/json/json.h"
 #include "core/json/sjson.h"
-#include "core/math/aabb.h"
-#include "core/math/color4.h"
+#include "core/math/aabb.inl"
+#include "core/math/color4.inl"
+#include "core/math/constants.h"
 #include "core/math/math.h"
-#include "core/math/matrix3x3.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/quaternion.h"
-#include "core/math/sphere.h"
-#include "core/math/vector2.h"
-#include "core/math/vector3.h"
-#include "core/math/vector4.h"
-#include "core/memory/memory.h"
-#include "core/memory/temp_allocator.h"
+#include "core/math/matrix3x3.inl"
+#include "core/math/matrix4x4.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/sphere.inl"
+#include "core/math/vector2.inl"
+#include "core/math/vector3.inl"
+#include "core/math/vector4.inl"
+#include "core/memory/memory.inl"
+#include "core/memory/temp_allocator.inl"
 #include "core/murmur.h"
 #include "core/os.h"
 #include "core/process.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string.h"
-#include "core/strings/string_id.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string.inl"
+#include "core/strings/string_id.inl"
 #include "core/thread/thread.h"
 #include "core/time.h"
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
@@ -419,7 +420,7 @@ static void test_vector4()
 static void test_quaternion()
 {
 	{
-		const Quaternion a = quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+		const Quaternion a = from_elements(0.0f, 0.0f, 0.0f, 1.0f);
 		ENSURE(fequal(a.x, 0.0f, 0.00001f));
 		ENSURE(fequal(a.y, 0.0f, 0.00001f));
 		ENSURE(fequal(a.z, 0.0f, 0.00001f));
@@ -477,11 +478,11 @@ static void test_color4()
 static void test_matrix3x3()
 {
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -497,11 +498,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z,   5.1f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -517,11 +518,11 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -12.7f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
-		const Matrix3x3 b = matrix3x3(3.2f, 4.8f, 6.0f
+		const Matrix3x3 b = from_elements(3.2f, 4.8f, 6.0f
 			, -1.6f, -7.1f, -2.4f
 			, -3.1f, -2.2f,  8.9f
 			);
@@ -537,7 +538,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(c.z.z, -22.54f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
@@ -553,7 +554,7 @@ static void test_matrix3x3()
 		ENSURE(fequal(b.z.z, -0.009478f, 0.00001f));
 	}
 	{
-		const Matrix3x3 a = matrix3x3(1.2f, -2.3f, 5.1f
+		const Matrix3x3 a = from_elements(1.2f, -2.3f, 5.1f
 			,  2.2f, -5.1f,  1.1f
 			,  3.2f,  3.3f, -3.8f
 			);
@@ -573,12 +574,12 @@ static void test_matrix3x3()
 static void test_matrix4x4()
 {
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -602,12 +603,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  -2.2f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -631,12 +632,12 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w,  12.0f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
 			);
-		const Matrix4x4 b = matrix4x4(3.2f, 4.8f, 6.0f, 5.3f
+		const Matrix4x4 b = from_elements(3.2f, 4.8f, 6.0f, 5.3f
 			, -1.6f, -7.1f, -2.4f, -6.2f
 			, -3.1f, -2.2f,  8.9f,  8.3f
 			,  3.8f,  9.1f, -3.1f, -7.1f
@@ -660,7 +661,7 @@ static void test_matrix4x4()
 		ENSURE(fequal(c.t.w, -44.55f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
@@ -684,7 +685,7 @@ static void test_matrix4x4()
 		ENSURE(fequal(b.t.w, -0.08108f, 0.00001f));
 	}
 	{
-		const Matrix4x4 a = matrix4x4(1.2f, -2.3f, 5.1f, -1.2f
+		const Matrix4x4 a = from_elements(1.2f, -2.3f, 5.1f, -1.2f
 			,  2.2f, -5.1f,  1.1f, -7.4f
 			,  3.2f,  3.3f, -3.8f, -9.2f
 			, -6.8f, -2.9f,  1.0f,  4.9f
@@ -1068,7 +1069,7 @@ static void test_json()
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		json::parse_string("\"This is JSON\"", str);
+		json::parse_string(str, "\"This is JSON\"");
 		ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
 	memory_globals::shutdown();
@@ -1124,7 +1125,7 @@ static void test_sjson()
 	{
 		TempAllocator1024 ta;
 		DynamicString str(ta);
-		sjson::parse_string("\"This is JSON\"", str);
+		sjson::parse_string(str, "\"This is JSON\"");
 		ENSURE(strcmp(str.c_str(), "This is JSON") == 0);
 	}
 	{
@@ -1183,7 +1184,7 @@ static void test_sjson()
 		ENSURE(a._id == 0x7c2365dbu);
 	}
 	{
-		const ResourceId a = sjson::parse_resource_id("\"murmur64\"");
+		const StringId64 a = sjson::parse_resource_name("\"murmur64\"");
 		ENSURE(a._id == 0x90631502d1a3432bu);
 	}
 	{
@@ -1194,7 +1195,7 @@ static void test_sjson()
 	{
 		TempAllocator128 ta;
 		DynamicString str(ta);
-		sjson::parse_verbatim("\"\"\"verbatim\"\"\"", str);
+		sjson::parse_verbatim(str, "\"\"\"verbatim\"\"\"");
 		ENSURE(strcmp(str.c_str(), "verbatim") == 0);
 	}
 	memory_globals::shutdown();
@@ -1359,12 +1360,12 @@ static void test_process()
 {
 #if CROWN_PLATFORM_POSIX
 	{
-		char buf[128] = {0};
 		const char* argv[] = {"printf", "Hello,\\nworld.\\n", NULL};
 
 		Process pr;
 		if (pr.spawn(argv, ProcessFlags::STDOUT_PIPE) == 0)
 		{
+			char buf[128] = {0};
 			pr.fgets(buf, sizeof(buf));
 			ENSURE(strcmp(buf, "Hello,\n") == 0);
 			pr.fgets(buf, sizeof(buf));

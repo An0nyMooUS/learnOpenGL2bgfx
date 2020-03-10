@@ -1,89 +1,166 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/matrix4x4.h"
+#include "core/math/matrix4x4.inl"
 
 namespace crown
 {
-void perspective(Matrix4x4& m, f32 fovy, f32 aspect, f32 nnear, f32 ffar)
+Matrix4x4 from_elements(f32 xx, f32 xy, f32 xz, f32 xw
+	, f32 yx, f32 yy, f32 yz, f32 yw
+	, f32 zx, f32 zy, f32 zz, f32 zw
+	, f32 tx, f32 ty, f32 tz, f32 tw
+	)
 {
-	const f32 height = 1.0f / ftan(fovy * 0.5f);
-	const f32 width = height * 1.0f / aspect;
-	const f32 aa = ffar / (ffar - nnear);
-	const f32 bb = -nnear * aa;
+	Matrix4x4 m;
+	m.x.x = xx;
+	m.x.y = xy;
+	m.x.z = xz;
+	m.x.w = xw;
 
-	m.x.x = width;
+	m.y.x = yx;
+	m.y.y = yy;
+	m.y.z = yz;
+	m.y.w = yw;
+
+	m.z.x = zx;
+	m.z.y = zy;
+	m.z.z = zz;
+	m.z.w = zw;
+
+	m.t.x = tx;
+	m.t.y = ty;
+	m.t.z = tz;
+	m.t.w = tw;
+	return m;
+}
+
+Matrix4x4 from_array(const f32 a[16])
+{
+	Matrix4x4 m;
+	m.x.x = a[0];
+	m.x.y = a[1];
+	m.x.z = a[2];
+	m.x.w = a[3];
+
+	m.y.x = a[4];
+	m.y.y = a[5];
+	m.y.z = a[6];
+	m.y.w = a[7];
+
+	m.z.x = a[8];
+	m.z.y = a[9];
+	m.z.z = a[10];
+	m.z.w = a[11];
+
+	m.t.x = a[12];
+	m.t.y = a[13];
+	m.t.z = a[14];
+	m.t.w = a[15];
+	return m;
+}
+
+Matrix4x4 from_axes(const Vector3& x, const Vector3& y, const Vector3& z, const Vector3& t)
+{
+	Matrix4x4 m;
+	m.x.x = x.x;
+	m.x.y = x.y;
+	m.x.z = x.z;
+	m.x.w = 0.0f;
+
+	m.y.x = y.x;
+	m.y.y = y.y;
+	m.y.z = y.z;
+	m.y.w = 0.0f;
+
+	m.z.x = z.x;
+	m.z.y = z.y;
+	m.z.z = z.z;
+	m.z.w = 0.0f;
+
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
+	m.t.w = 1.0f;
+	return m;
+}
+
+Matrix4x4 from_quaternion_translation(const Quaternion& r, const Vector3& t)
+{
+	const Matrix3x3 rot = from_quaternion(r);
+
+	Matrix4x4 m;
+	m.x.x = rot.x.x;
+	m.x.y = rot.x.y;
+	m.x.z = rot.x.z;
+	m.x.w = 0.0f;
+
+	m.y.x = rot.y.x;
+	m.y.y = rot.y.y;
+	m.y.z = rot.y.z;
+	m.y.w = 0.0f;
+
+	m.z.x = rot.z.x;
+	m.z.y = rot.z.y;
+	m.z.z = rot.z.z;
+	m.z.w = 0.0f;
+
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
+	m.t.w = 1.0f;
+	return m;
+}
+
+Matrix4x4 from_translation(const Vector3& t)
+{
+	Matrix4x4 m;
+	m.x.x = 1.0f;
 	m.x.y = 0.0f;
 	m.x.z = 0.0f;
 	m.x.w = 0.0f;
 
 	m.y.x = 0.0f;
-	m.y.y = height;
+	m.y.y = 1.0f;
 	m.y.z = 0.0f;
 	m.y.w = 0.0f;
 
 	m.z.x = 0.0f;
 	m.z.y = 0.0f;
-	m.z.z = aa;
-	m.z.w = 1.0f;
+	m.z.z = 1.0f;
+	m.z.w = 0.0f;
+
+	m.t.x = t.x;
+	m.t.y = t.y;
+	m.t.z = t.z;
+	m.t.w = 1.0f;
+	return m;
+}
+
+Matrix4x4 from_matrix3x3(const Matrix3x3& r)
+{
+	Matrix4x4 m;
+	m.x.x = r.x.x;
+	m.x.y = r.x.y;
+	m.x.z = r.x.z;
+	m.x.w = 0.0f;
+
+	m.y.x = r.y.x;
+	m.y.y = r.y.y;
+	m.y.z = r.y.z;
+	m.y.w = 0.0f;
+
+	m.z.x = r.z.x;
+	m.z.y = r.z.y;
+	m.z.z = r.z.z;
+	m.z.w = 0.0f;
 
 	m.t.x = 0.0f;
 	m.t.y = 0.0f;
-	m.t.z = bb;
-	m.t.w = 0.0f;
-}
-
-void orthographic(Matrix4x4& m, f32 left, f32 right, f32 bottom, f32 top, f32 nnear, f32 ffar)
-{
-	m.x.x = 2.0f / (right - left);
-	m.x.y = 0.0f;
-	m.x.z = 0.0f;
-	m.x.w = 0.0f;
-
-	m.y.x = 0.0f;
-	m.y.y = 2.0f / (top - bottom);
-	m.y.z = 0.0f;
-	m.y.w = 0.0f;
-
-	m.z.x = 0.0f;
-	m.z.y = 0.0f;
-	m.z.z = 1.0f / (ffar - nnear);
-	m.z.w = 0.0f;
-
-	m.t.x = (left + right) / (left - right);
-	m.t.y = (top + bottom) / (bottom - top);
-	m.t.z = nnear / (nnear - ffar);
+	m.t.z = 0.0f;
 	m.t.w = 1.0f;
-}
-
-void look(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
-{
-	Vector3 zaxis = target - pos;
-	normalize(zaxis);
-	const Vector3 xaxis = cross(up, zaxis);
-	const Vector3 yaxis = cross(zaxis, xaxis);
-
-	m.x.x = xaxis.x;
-	m.x.y = yaxis.x;
-	m.x.z = zaxis.x;
-	m.x.w = 0.0f;
-
-	m.y.x = xaxis.y;
-	m.y.y = yaxis.y;
-	m.y.z = zaxis.y;
-	m.y.w = 0.0f;
-
-	m.z.x = xaxis.z;
-	m.z.y = yaxis.z;
-	m.z.z = zaxis.z;
-	m.z.w = 0.0f;
-
-	m.t.x = -dot(pos, xaxis);
-	m.t.y = -dot(pos, yaxis);
-	m.t.z = -dot(pos, zaxis);
-	m.t.w = 1.0f;
+	return m;
 }
 
 Matrix4x4& invert(Matrix4x4& m)

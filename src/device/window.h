@@ -41,7 +41,6 @@ struct CursorMode
 	{
 		NORMAL,
 		DISABLED,
-		//CYCLE,
 
 		COUNT
 	};
@@ -100,7 +99,7 @@ struct Window
 	/// Sets the mouse @a cursor on this window.
 	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
 
-	/// Sets the @a mouse mode on this window
+	/// Sets the mouse cursor @a mode on this window
 	virtual void set_cursor_mode(CursorMode::Enum mode) = 0;
 
 	virtual void bgfx_setup() = 0;

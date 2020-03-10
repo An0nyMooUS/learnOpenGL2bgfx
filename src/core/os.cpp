@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/vector.h"
+#include "core/containers/vector.inl"
 #include "core/error/error.h"
-#include "core/memory/temp_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/platform.h"
-#include "core/strings/dynamic_string.h"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.h"
 #include <string.h>   // strcmp
 #include <sys/stat.h> // stat, mkdir
@@ -76,11 +76,12 @@ namespace os
 	{
 #if CROWN_PLATFORM_ANDROID
 		__android_log_write(ANDROID_LOG_DEBUG, "crown", msg);
-#elif CROWN_PLATFORM_WINDOWS
-		OutputDebugStringA(msg);
 #else
 		fputs(msg, stdout);
 		fflush(stdout);
+#endif
+#if CROWN_PLATFORM_WINDOWS
+		OutputDebugStringA(msg);
 #endif
 	}
 
@@ -230,52 +231,52 @@ namespace os
 	void list_files(const char* path, Vector<DynamicString>& files)
 	{
 #if CROWN_PLATFORM_POSIX
-		DIR *dir;
 		struct dirent *entry;
 
-		if (!(dir = opendir(path)))
-			return;
-
-		while ((entry = readdir(dir)))
+		DIR *dir = opendir(path);
+		if (dir != NULL)
 		{
-			const char* dname = entry->d_name;
+			while ((entry = readdir(dir)))
+			{
+				const char* dname = entry->d_name;
 
-			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
-				continue;
+				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
+					continue;
 
-			TempAllocator512 ta;
-			DynamicString fname(ta);
-			fname.set(dname, strlen32(dname));
-			vector::push_back(files, fname);
+				TempAllocator256 ta;
+				DynamicString fname(ta);
+				fname.set(dname, strlen32(dname));
+				vector::push_back(files, fname);
+			}
+
+			closedir(dir);
 		}
-
-		closedir(dir);
 #elif CROWN_PLATFORM_WINDOWS
-		TempAllocator1024 ta;
+		TempAllocator256 ta;
 		DynamicString cur_path(ta);
 		cur_path += path;
 		cur_path += "\\*";
 
 		WIN32_FIND_DATA ffd;
 		HANDLE file = FindFirstFile(cur_path.c_str(), &ffd);
-		if (file == INVALID_HANDLE_VALUE)
-			return;
-
-		do
+		if (file != INVALID_HANDLE_VALUE)
 		{
-			const char* dname = ffd.cFileName;
+			do
+			{
+				const char* dname = ffd.cFileName;
 
-			if (!strcmp(dname, ".") || !strcmp(dname, ".."))
-				continue;
+				if (!strcmp(dname, ".") || !strcmp(dname, ".."))
+					continue;
 
-			TempAllocator512 ta;
-			DynamicString fname(ta);
-			fname.set(dname, strlen32(dname));
-			vector::push_back(files, fname);
+				TempAllocator256 ta;
+				DynamicString fname(ta);
+				fname.set(dname, strlen32(dname));
+				vector::push_back(files, fname);
+			}
+			while (FindNextFile(file, &ffd) != 0);
+
+			FindClose(file);
 		}
-		while (FindNextFile(file, &ffd) != 0);
-
-		FindClose(file);
 #endif
 	}
 

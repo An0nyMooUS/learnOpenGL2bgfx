@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -7,7 +7,7 @@
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "core/strings/string_stream.h"
+#include "core/strings/string_stream.inl"
 
 namespace crown
 {

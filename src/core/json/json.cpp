@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/containers/hash_map.h"
+#include "core/containers/array.inl"
+#include "core/containers/hash_map.inl"
 #include "core/json/json.h"
-#include "core/json/json_object.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/dynamic_string.h"
-#include "core/strings/string.h"
+#include "core/json/json_object.inl"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string.inl"
 
 namespace crown
 {
@@ -165,7 +166,7 @@ namespace json
 		}
 	}
 
-	void parse_string(const char* json, DynamicString& string)
+	void parse_string(DynamicString& str, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -173,36 +174,29 @@ namespace json
 		{
 			while (*++json)
 			{
-				// Empty string
 				if (*json == '"')
-				{
-					++json;
 					return;
-				}
-				else if (*json == '\\')
+
+				if (*json == '\\')
 				{
 					++json;
 
 					switch (*json)
 					{
-					case '"': string += '"'; break;
-					case '\\': string += '\\'; break;
-					case '/': string += '/'; break;
-					case 'b': string += '\b'; break;
-					case 'f': string += '\f'; break;
-					case 'n': string += '\n'; break;
-					case 'r': string += '\r'; break;
-					case 't': string += '\t'; break;
-					default:
-					{
-						CE_FATAL("Bad escape character");
-						break;
+					case '"': str += '"'; break;
+					case '\\': str += '\\'; break;
+					case '/': str += '/'; break;
+					case 'b': str += '\b'; break;
+					case 'f': str += '\f'; break;
+					case 'n': str += '\n'; break;
+					case 'r': str += '\r'; break;
+					case 't': str += '\t'; break;
+					default: CE_FATAL("Bad escape character"); break;
 					}
-				}
 				}
 				else
 				{
-					string += *json;
+					str += *json;
 				}
 			}
 		}
@@ -210,7 +204,7 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	void parse_array(const char* json, JsonArray& array)
+	void parse_array(JsonArray& arr, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -223,7 +217,7 @@ namespace json
 
 			while (*json)
 			{
-				array::push_back(array, json);
+				array::push_back(arr, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -239,7 +233,7 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	void parse_object(const char* json, JsonObject& object)
+	void parse_object(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
 
@@ -256,7 +250,7 @@ namespace json
 
 				TempAllocator256 ta;
 				DynamicString key(ta);
-				parse_string(json, key);
+				parse_string(key, json);
 
 				StringView fs_key(key_begin, key.length());
 
@@ -265,7 +259,7 @@ namespace json
 				json = next(json, ':');
 				json = skip_spaces(json);
 
-				hash_map::set(object._map, fs_key, json);
+				hash_map::set(obj._map, fs_key, json);
 
 				json = skip_value(json);
 				json = skip_spaces(json);
@@ -281,17 +275,17 @@ namespace json
 		CE_FATAL("Bad object");
 	}
 
-	void parse(const char* json, JsonObject& object)
+	void parse(JsonObject& obj, const char* json)
 	{
 		CE_ENSURE(NULL != json);
-		parse_object(json, object);
+		parse_object(obj, json);
 	}
 
-	void parse(Buffer& json, JsonObject& object)
+	void parse(JsonObject& obj, Buffer& json)
 	{
 		array::push_back(json, '\0');
 		array::pop_back(json);
-		parse(array::begin(json), object);
+		parse(obj, array::begin(json));
 	}
 
 } // namespace json

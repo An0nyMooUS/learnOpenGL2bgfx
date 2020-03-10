@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -27,22 +27,22 @@ namespace json
 	/// Returns the JSON boolean @a json as bool.
 	bool parse_bool(const char* json);
 
-	/// Parses the JSON string @a json ad puts it into @a string.
-	void parse_string(const char* json, DynamicString& string);
+	/// Parses the JSON string @a json ad puts it into @a str.
+	void parse_string(DynamicString& str, const char* json);
 
-	/// Parses the JSON array @a json and puts it into @a array as pointers to
+	/// Parses the JSON array @a json and puts it into @a arr as pointers to
 	/// the corresponding items into the original @a json string.
-	void parse_array(const char* json, JsonArray& array);
+	void parse_array(JsonArray& arr, const char* json);
 
-	/// Parses the JSON object @a json and puts it into @a object as map from
+	/// Parses the JSON object @a json and puts it into @a obj as map from
 	/// key to pointer to the corresponding value into the original string @a json.
-	void parse_object(const char* json, JsonObject& object);
+	void parse_object(JsonObject& obj, const char* json);
 
 	/// Parses the JSON-encoded @a json.
-	void parse(const char* json, JsonObject& object);
+	void parse(JsonObject& obj, const char* json);
 
 	/// Parses the JSON-encoded @a json.
-	void parse(Buffer& json, JsonObject& object);
+	void parse(JsonObject& obj, Buffer& json);
 
 } // namespace json
 

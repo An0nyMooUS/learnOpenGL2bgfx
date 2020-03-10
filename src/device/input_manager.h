@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -8,8 +8,8 @@
 #include "config.h"
 #include "core/memory/types.h"
 #include "core/types.h"
-#include "device/device_event_queue.h"
 #include "device/input_types.h"
+#include "device/types.h"
 
 namespace crown
 {
@@ -25,6 +25,7 @@ struct InputManager
 	InputDevice* _joypad[CROWN_MAX_JOYPADS];
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
+	bool _has_delta_axis_event;
 
 	/// Constructor.
 	InputManager(Allocator& a);

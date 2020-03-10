@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -14,6 +14,7 @@ namespace crown
 /// @ingroup Thread
 struct ConditionVariable
 {
+	struct Private* _priv;
 	CE_ALIGN_DECL(16, u8 _data[64]);
 
 	///

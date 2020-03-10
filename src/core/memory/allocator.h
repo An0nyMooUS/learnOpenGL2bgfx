@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -14,9 +14,20 @@ namespace crown
 /// @ingroup Memory
 struct Allocator
 {
-	Allocator() {}
-	virtual	~Allocator() {}
+	///
+	Allocator()
+	{
+	}
+
+	///
+	virtual	~Allocator()
+	{
+	}
+
+	///
 	Allocator(const Allocator&) = delete;
+
+	///
 	Allocator& operator=(const Allocator&) = delete;
 
 	/// Allocates @a size bytes of memory aligned to the specified

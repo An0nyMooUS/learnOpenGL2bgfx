@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/containers/types.h"
 #include "core/error/error.h"
 #include <string.h> // memcpy

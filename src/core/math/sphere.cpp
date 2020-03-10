@@ -1,14 +1,21 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/math/sphere.h"
+#include "core/math/constants.h"
+#include "core/math/sphere.inl"
 
 namespace crown
 {
 namespace sphere
 {
+	void reset(Sphere& s)
+	{
+		s.c = VECTOR3_ZERO;
+		s.r = 0.0f;
+	}
+
 	void add_points(Sphere& s, u32 num, u32 stride, const void* points)
 	{
 		float rr = s.r*s.r;

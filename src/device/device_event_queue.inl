@@ -1,90 +1,25 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
-#include "core/thread/atomic_int.h"
-#include "core/types.h"
+#include "device/types.h"
+#include <atomic>
 #include <string.h> // memcpy
 
 namespace crown
 {
-struct OsEventType
-{
-	enum Enum
-	{
-		BUTTON,
-		AXIS,
-		STATUS,
-		RESOLUTION,
-		EXIT,
-		PAUSE,
-		RESUME,
-		TEXT,
-		NONE
-	};
-};
-
-struct ButtonEvent
-{
-	u16 type;
-	u16 device_id  : 3;
-	u16 device_num : 2;
-	u16 button_num : 8;
-	u16 pressed    : 1;
-};
-
-struct AxisEvent
-{
-	u16 type;
-	u16 device_id  : 3;
-	u16 device_num : 2;
-	u16 axis_num   : 4;
-	s16 axis_x;
-	s16 axis_y;
-	s16 axis_z;
-};
-
-struct StatusEvent
-{
-	u16 type;
-	u16 device_id  : 3;
-	u16 device_num : 2;
-	u16 connected  : 1;
-};
-
-struct ResolutionEvent
-{
-	u16 type;
-	u16 width;
-	u16 height;
-};
-
-struct TextEvent
-{
-	u16 type;
-	u8 len;
-	u8 utf8[4];
-};
-
-union OsEvent
-{
-	u16 type;
-	ButtonEvent button;
-	AxisEvent axis;
-	StatusEvent status;
-	ResolutionEvent resolution;
-	TextEvent text;
-};
-
 /// Single Producer Single Consumer event queue.
 /// Used only to pass events from os thread to main thread.
+/// https://www.irif.fr/~guatto/papers/sbac13.pdf
+///
+/// @ingroup Device
 struct DeviceEventQueue
 {
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _tail);
-	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, AtomicInt _head);
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _tail);
+	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, std::atomic_int _head);
 #define MAX_OS_EVENTS 128
 	OsEvent _queue[MAX_OS_EVENTS];
 
@@ -159,37 +94,31 @@ struct DeviceEventQueue
 		push_event(ev);
 	}
 
-	void push_none_event()
-	{
-		OsEvent ev;
-		ev.type = OsEventType::NONE;
-
-		push_event(ev);
-	}
-
 	bool push_event(const OsEvent& ev)
 	{
-		const int tail = _tail.load();
+		const int tail = _tail.load(std::memory_order_relaxed);
+		const int head = _head.load(std::memory_order_acquire);
 		const int tail_next = (tail + 1) % MAX_OS_EVENTS;
 
-		if (CE_UNLIKELY(tail_next == _head.load()))
+		if (CE_UNLIKELY(tail_next == head))
 			return false;
 
 		_queue[tail] = ev;
-		_tail.store(tail_next);
+		_tail.store(tail_next, std::memory_order_release);
 		return true;
 	}
 
 	bool pop_event(OsEvent& ev)
 	{
-		const int head = _head.load();
+		const int head = _head.load(std::memory_order_relaxed);
+		const int tail = _tail.load(std::memory_order_acquire);
+		const int head_next = (head + 1) % MAX_OS_EVENTS;
 
-		if (CE_UNLIKELY(head == _tail.load()))
+		if (CE_UNLIKELY(head == tail))
 			return false;
 
 		ev = _queue[head];
-		_head.store((head + 1) % MAX_OS_EVENTS);
-
+		_head.store(head_next, std::memory_order_release);
 		return true;
 	}
 };

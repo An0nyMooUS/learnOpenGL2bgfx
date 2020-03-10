@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
-#include "core/error/error.h"
-#include "core/math/quaternion.h"
+#include "core/error/error.inl"
+#include "core/math/quaternion.inl"
 #include "core/types.h"
 
 namespace crown

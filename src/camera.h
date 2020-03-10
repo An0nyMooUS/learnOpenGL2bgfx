@@ -3,9 +3,6 @@
 #include "world/types.h"
 #include "core/containers/types.h" 
 #include "core/math/types.h"
-#include "core/math/vector3.h"
-#include "core/math/quaternion.h"
-#include "core/math/matrix4x4.h"
 
 namespace crown {
     struct Pose {

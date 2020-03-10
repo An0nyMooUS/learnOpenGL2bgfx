@@ -3,7 +3,8 @@
 #include "renderer_texture.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
-#include "core/math/color4.h"
+#include "core/math/color4.inl"
+#include "core/math/constants.h"
 #include <stdio.h>
 #include <stb_image.h>
 

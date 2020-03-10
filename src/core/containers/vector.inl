@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -8,6 +8,7 @@
 #include "core/containers/types.h"
 #include "core/error/error.h"
 #include "core/memory/allocator.h"
+#include "core/memory/memory.inl"
 
 namespace crown
 {

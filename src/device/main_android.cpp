@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -7,13 +7,15 @@
 
 #if CROWN_PLATFORM_ANDROID
 
+#include "core/error/error.inl"
 #include "core/guid.h"
+#include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/thread/thread.h"
 #include "device/device.h"
-#include "device/device_event_queue.h"
+#include "device/device_event_queue.inl"
 #include <android/sensor.h>
 #include <android/window.h>
-#include <android_native_app_glue.h>
 #include <bgfx/platform.h>
 #include <jni.h>
 #include <stdlib.h>
@@ -196,12 +198,12 @@ struct AndroidDevice
 
 	static s32 on_input_event(struct android_app* app, AInputEvent* event)
 	{
-		return ((AndroidDevice*) app->userData)->process_input(app, event);
+		return static_cast<AndroidDevice*>(app->userData)->process_input(app, event);
 	}
 
 	static void on_app_cmd(struct android_app* app, s32 cmd)
 	{
-		((AndroidDevice*) app->userData)->process_command(app, cmd);
+		static_cast<AndroidDevice*>(app->userData)->process_command(app, cmd);
 	}
 };
 
@@ -268,6 +270,14 @@ struct WindowAndroid : public Window
 	{
 	}
 
+	void set_cursor(MouseCursor::Enum /*cursor*/)
+	{
+	}
+
+	void set_cursor_mode(CursorMode::Enum /*mode*/)
+	{
+	}
+
 	void* handle()
 	{
 		return NULL;
@@ -325,9 +335,6 @@ bool next_event(OsEvent& ev)
 void android_main(struct android_app* app)
 {
 	using namespace crown;
-
-	// Make sure glue isn't stripped.
-	app_dummy();
 
 	memory_globals::init();
 	guid_globals::init();

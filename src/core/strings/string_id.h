@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
 #include "core/types.h"
-#include "core/functional.h"
+
+#define STRING_ID32_BUF_LEN 9
+#define STRING_ID64_BUF_LEN 17
 
 namespace crown
 {
@@ -27,8 +29,10 @@ struct StringId32
 	/// Parses the id from @a str.
 	void parse(const char* str);
 
-	/// Fills @a buf with the string representation of this id.
-	void to_string(char* buf, u32 len) const;
+	/// Returns this string converted to ASCIIZ.
+	/// @a buf size must be greater than or equal to STRING_ID32_BUF_LEN or the
+	/// returned string will be truncated.
+	const char* to_string(char* buf, u32 len) const;
 };
 
 /// Hashed string.
@@ -48,59 +52,10 @@ struct StringId64
 	/// Parses the id from @a str.
 	void parse(const char* str);
 
-	/// Fills @a buf with the string representation of this id.
-	void to_string(char* buf, u32 len) const;
+	/// Returns this string converted to ASCIIZ.
+	/// @a buf size must be greater than or equal to STRING_ID64_BUF_LEN or the
+	/// returned string will be truncated.
+	const char* to_string(char* buf, u32 len) const;
 };
-
-/// @addtogroup String
-/// @{
-inline bool operator==(const StringId32& a, const StringId32& b)
-{
-	return a._id == b._id;
-}
-
-inline bool operator!=(const StringId32& a, const StringId32& b)
-{
-	return a._id != b._id;
-}
-
-inline bool operator<(const StringId32& a, const StringId32& b)
-{
-	return a._id < b._id;
-}
-
-inline bool operator==(const StringId64& a, const StringId64& b)
-{
-	return a._id == b._id;
-}
-
-inline bool operator!=(const StringId64& a, const StringId64& b)
-{
-	return a._id != b._id;
-}
-
-inline bool operator<(const StringId64& a, const StringId64& b)
-{
-	return a._id < b._id;
-}
-
-template <>
-struct hash<StringId32>
-{
-	u32 operator()(const StringId32& id) const
-	{
-		return id._id;
-	}
-};
-
-template <>
-struct hash<StringId64>
-{
-	u32 operator()(const StringId64& id) const
-	{
-		return (u32)id._id;
-	}
-};
-/// @}
 
 } // namespace crown

@@ -7,6 +7,9 @@
 #include "device/input_device.h" 
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
+#include "core/math/vector3.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/matrix4x4.inl"
 
 namespace crown {
     Camera camera_create(const CameraDesc& cd, const Pose pose, f32 aspect) {
@@ -52,13 +55,13 @@ namespace crown {
             break;
         }
 
-        cam.proj = matrix4x4(bx_proj);
+        cam.proj = from_array(bx_proj);
 
         return cam;
     }
 
     Matrix4x4 get_view(const Camera& cam) {
-        Matrix4x4 view =  matrix4x4(cam.pose.rotation, cam.pose.position);
+        Matrix4x4 view =  from_quaternion_translation(cam.pose.rotation, cam.pose.position);
         invert(view);
         //to_string(view);
         return view;
@@ -89,9 +92,9 @@ namespace crown {
         float dx = delta.x;
         float dy = delta.y;
 
-        Quaternion rotation_around_world_up = quaternion(vector3(0, 1, 0), rotation_speed*dx*dt);
+        Quaternion rotation_around_world_up = from_axis_angle(vector3(0, 1, 0), rotation_speed*dx*dt);
 		normalize(rotation_around_world_up);
-        Quaternion rotation_around_camera_right = quaternion(vector3(1, 0, 0), rotation_speed*dy*dt);
+        Quaternion rotation_around_camera_right = from_axis_angle(vector3(1, 0, 0), rotation_speed*dy*dt);
 		normalize(rotation_around_camera_right);
 
         cam.pose.rotation = rotation_around_world_up * cam.pose.rotation * rotation_around_camera_right;

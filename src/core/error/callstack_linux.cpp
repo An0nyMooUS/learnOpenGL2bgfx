@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -7,8 +7,8 @@
 
 #if CROWN_PLATFORM_LINUX && (CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG)
 
-#include "core/strings/string.h"
-#include "core/strings/string_stream.h"
+#include "core/strings/string.inl"
+#include "core/strings/string_stream.inl"
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <stdlib.h>

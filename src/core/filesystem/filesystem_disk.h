@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
@@ -63,8 +63,8 @@ struct FilesystemDisk : public Filesystem
 	/// @copydoc Filesystem::list_files()
 	void list_files(const char* path, Vector<DynamicString>& files);
 
-	/// @copydoc Filesystem::get_absolute_path()
-	void get_absolute_path(const char* path, DynamicString& os_path);
+	/// @copydoc Filesystem::absolute_path()
+	void absolute_path(DynamicString& os_path, const char* path);
 };
 
 } // namespace crown

@@ -2,14 +2,15 @@
 #include "renderer_lightingmaps.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
-#include "core/memory/memory.h"
+#include "core/memory/memory.inl"
 #include "core/containers/types.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/math/types.h"
-#include "core/math/color4.h"
-#include "core/math/vector3.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/quaternion.h"
+#include "core/math/color4.inl"
+#include "core/math/vector3.inl"
+#include "core/math/matrix4x4.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/constants.h"
 #include "core/time.h"
 #include "camera.h"
 #include <stb_image.h>
@@ -75,11 +76,13 @@ namespace rendererlightingmap {
 	static bgfx::UniformHandle view_pos;
 	static bgfx::UniformHandle ambient;
 	static bgfx::UniformHandle diffuse;
+    static bgfx::UniformHandle specular;
 	static bgfx::UniformHandle specular_shininess;
 	static bgfx::UniformHandle light_ambient;
 	static bgfx::UniformHandle light_diffuse;
 	static bgfx::UniformHandle light_specular;
     static bgfx::TextureHandle diffuse_map;
+    static bgfx::TextureHandle specular_map;
 
 	static bgfx::VertexLayout layout_cube;
 	static bgfx::VertexLayout layout_light;
@@ -100,10 +103,14 @@ namespace rendererlightingmap {
         stbi_set_flip_vertically_on_load(true);
         unsigned char *data = stbi_load("../../../resources/images/container2.png", &w, &h, &nrChannels, 0);
         const bgfx::Memory *im = bgfx::copy(data, nrChannels*w*h);
-        printf("numch: %d\n", nrChannels);
 
-        if (data) {
+        int w2, h2, nrChannels2;
+        unsigned char *data2 = stbi_load("../../../resources/images/container2_specular.png", &w2, &h2, &nrChannels2, 0);
+        const bgfx::Memory *im2 = bgfx::copy(data2, nrChannels2*w2*h2);
+
+        if (data && data2) {
             diffuse_map = bgfx::createTexture2D(w, h, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, im);
+            specular_map = bgfx::createTexture2D(w2, h2, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, im2);
         } else {
             printf("Failed to load texture\n");
         }
@@ -152,6 +159,7 @@ namespace rendererlightingmap {
 		light_specular= bgfx::createUniform("light_specular", bgfx::UniformType::Vec4);
 
         diffuse = bgfx::createUniform("diffuse", bgfx::UniformType::Sampler);
+        specular = bgfx::createUniform("specular", bgfx::UniformType::Sampler);
 
 
 
@@ -179,7 +187,7 @@ namespace rendererlightingmap {
 		bgfx::setTransform(to_float_ptr(model));
 
 		Vector4 obj_color = vector4(1.0, 0.5, 0.31, 1.0);
-		Vector4 specular = vector4(0.5, 0.5, 0.5, 32.0);
+        Vector4 spec = vector4(0.5, 0.5, 0.5, 32.0);
 		Vector4 lgt_pos = vector4(light_pos.x, light_pos.y, light_pos.z, 1.0);
 		Vector4 lgt_diffuse = vector4(0.5, 0.5, 0.5, 1.0);
 		Vector4 lgt_ambient = vector4(0.2, 0.2, 0.2, 1.0);
@@ -191,9 +199,10 @@ namespace rendererlightingmap {
 		bgfx::setUniform(inv_model, to_float_ptr(get_inverted(model)));
 		bgfx::setUniform(view_pos, to_float_ptr(cam.pose.position));
 		bgfx::setUniform(ambient, to_float_ptr(obj_color));
-		bgfx::setUniform(specular_shininess, to_float_ptr(specular));
+        bgfx::setUniform(specular_shininess, to_float_ptr(spec));
 
         bgfx::setTexture(0, diffuse, diffuse_map);
+        bgfx::setTexture(1, specular, specular_map);
 
 		bgfx::setVertexBuffer(0, vbh_cube);
 		bgfx::setState(BGFX_STATE_DEFAULT ^ BGFX_STATE_CULL_CW);

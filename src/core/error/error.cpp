@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #include "core/error/callstack.h"
 #include "core/error/error.h"
-#include "core/memory/temp_allocator.h"
-#include "core/strings/string_stream.h"
+#include "core/memory/temp_allocator.inl"
+#include "core/strings/string_stream.inl"
 #include <stdarg.h>
 #include <stdlib.h> // exit
 

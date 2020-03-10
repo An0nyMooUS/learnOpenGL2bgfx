@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #pragma once
 
-#include "core/math/aabb.h"
+#include "core/math/aabb.inl"
 #include "core/math/intersection.h"
-#include "core/math/plane3.h"
-#include "core/math/types.h"
+#include "core/math/plane3.inl"
 
 namespace crown
 {

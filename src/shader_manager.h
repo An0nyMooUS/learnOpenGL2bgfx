@@ -5,7 +5,6 @@
 #include "core/containers/types.h"
 #include "core/filesystem/types.h"
 #include "core/memory/allocator.h"
-#include "core/memory/temp_allocator.h"
 
 #if CROWN_PLATFORM_LINUX
 	#define EXE_PREFIX "./"

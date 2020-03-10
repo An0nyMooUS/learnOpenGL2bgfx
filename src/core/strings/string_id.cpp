@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2012-2018 Daniele Bartolini and individual contributors.
+ * Copyright (c) 2012-2020 Daniele Bartolini and individual contributors.
  * License: https://github.com/dbartolini/crown/blob/master/LICENSE
  */
 
 #include "core/error/error.h"
 #include "core/murmur.h"
-#include "core/strings/string.h"
+#include "core/strings/string.inl"
 #include "core/strings/string_id.h"
 #include <inttypes.h> // PRIx64
 
@@ -35,9 +35,10 @@ void StringId32::parse(const char* str)
 	CE_UNUSED(num);
 }
 
-void StringId32::to_string(char* buf, u32 len) const
+const char* StringId32::to_string(char* buf, u32 len) const
 {
 	snprintf(buf, len, "%.8x", _id);
+	return buf;
 }
 
 StringId64::StringId64(const char* str)
@@ -67,9 +68,10 @@ void StringId64::parse(const char* str)
 	CE_UNUSED(num);
 }
 
-void StringId64::to_string(char* buf, u32 len) const
+const char* StringId64::to_string(char* buf, u32 len) const
 {
 	snprintf(buf, len, "%.16" PRIx64, _id);
+	return buf;
 }
 
 } // namespace crown

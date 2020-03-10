@@ -3,14 +3,16 @@
 #include "renderer_coord_system.h"
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
-#include "core/memory/memory.h"
+#include "core/memory/memory.inl"
+#include "core/memory/globals.h"
 #include "core/containers/types.h"
-#include "core/containers/array.h"
+#include "core/containers/array.inl"
 #include "core/math/types.h"
-#include "core/math/color4.h"
-#include "core/math/vector3.h"
-#include "core/math/matrix4x4.h"
-#include "core/math/quaternion.h"
+#include "core/math/color4.inl"
+#include "core/math/vector3.inl"
+#include "core/math/matrix4x4.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/constants.h"
 #include "core/time.h"
 #include <stdio.h>
 #include <stb_image.h>
@@ -156,7 +158,7 @@ namespace crown {
         //const bx::Vec3 eye = { 0.0f, 0.0f, -5.0f };
         Vector3 eye = vector3(0.0f, 0.0f, 3.0f);
         //float view[16];
-        Matrix4x4 view = matrix4x4(eye);
+        Matrix4x4 view = from_translation(eye);
         //bx::mtxLookAt(view, eye, at);
 
         float proj[16];
@@ -186,10 +188,10 @@ namespace crown {
             Vector3 axis = vector3(1.0, 0.3, -0.5);
             //Vector3 axis = vector3(0.0, 0.0, 1.0);
             normalize(axis);
-            Quaternion rotation = quaternion(axis, frad(angle));
+            Quaternion rotation = from_axis_angle(axis, frad(angle));
             //quaternion.x 
             Vector3 translation = (*cubePositions)[i];
-            model = matrix4x4(rotation, translation);
+            model = from_quaternion_translation(rotation, translation);
             bgfx::setTransform(to_float_ptr(model));
 
             bgfx::setVertexBuffer(0, vbh);
