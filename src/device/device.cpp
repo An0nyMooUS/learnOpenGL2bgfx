@@ -43,6 +43,7 @@
 #include "renderer_basiclighting.h"
 #include "renderer_material.h"
 #include "renderer_lightingmaps.h"
+#include "renderer_depthtest.h"
 
 #define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
@@ -261,7 +262,7 @@ void Device::run()
 	u16 old_height = _height;
 	s64 time_last = time::now();
 
-    rendererlightingmap::init(_width, _height);
+    rendererdepthtest::init(_width, _height);
 
     bgfx::setViewRect(0, 0, 0, uint16_t(_width), uint16_t(_width));
     _window->set_cursor_mode(CursorMode::DISABLED);
@@ -281,7 +282,7 @@ void Device::run()
         if (!_paused)
         {
         }
-        rendererlightingmap::render(_width, _height, dt);
+        rendererdepthtest::render(_width, _height, dt);
 
         _input_manager->update();
 
