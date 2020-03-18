@@ -77,6 +77,7 @@ namespace rendererdepthtest {
     static bgfx::UniformHandle tex2;
     static bgfx::VertexLayout layout;
     static bgfx::ProgramHandle program;
+    static bgfx::ProgramHandle program_outline;
     static Camera cam;
 
     bool load_texture(bgfx::TextureHandle &handle, const char *path) {
@@ -120,11 +121,17 @@ namespace rendererdepthtest {
                 "../../../shaders/depthtest/f_depthtest.sc"
                 );
 
+        program_outline = sm.compile(
+                        "../../../shaders/depthtest/v_depthtest.sc",
+                        "../../../shaders/depthtest/varying.def.sc",
+                        "../../../shaders/depthtest/f_outline.sc"
+                        );
+
         tex1 = bgfx::createUniform("texture1", bgfx::UniformType::Sampler);
 
         bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height)); 
 
-        bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
+        bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL,
                 to_rgba(color4(0.1, 0.1, 0.1, 1.0)), 1.0, 0);
 
         bgfx::touch(0);
@@ -140,10 +147,18 @@ namespace rendererdepthtest {
 
 		bgfx::setViewRect(0, 0, 0, width, height);
 		bgfx::touch(0);
-        uint64_t state = BGFX_STATE_DEFAULT ^
-                         BGFX_STATE_CULL_CW |
-                         BGFX_STATE_WRITE_Z |
-                         BGFX_STATE_DEPTH_TEST_LESS;
+        uint64_t state =  BGFX_STATE_DEFAULT 
+                        ^ BGFX_STATE_CULL_CW 
+                        | BGFX_STATE_WRITE_Z 
+                        | BGFX_STATE_DEPTH_TEST_LESS;
+
+        uint64_t stencil =  BGFX_STENCIL_TEST_ALWAYS 
+                          | BGFX_STENCIL_FUNC_REF(1) 
+                          | BGFX_STENCIL_FUNC_RMASK(0xFF) 
+                          | BGFX_STENCIL_OP_FAIL_S_KEEP
+                          | BGFX_STENCIL_OP_FAIL_Z_KEEP
+                          | BGFX_STENCIL_OP_PASS_Z_REPLACE;
+
 
 		Matrix4x4 model;
 		set_identity(model);
@@ -152,6 +167,7 @@ namespace rendererdepthtest {
         bgfx::setTexture(0, tex1, th1);
         bgfx::setVertexBuffer(0, vbh_cube);
 		bgfx::setState(state);
+        bgfx::setStencil(stencil);
         bgfx::submit(0, program);
         
         set_translation(model, vector3(2.0, 0.0, 0.0));
@@ -159,6 +175,7 @@ namespace rendererdepthtest {
         bgfx::setTexture(0, tex1, th1);
         bgfx::setVertexBuffer(0, vbh_cube);
 		bgfx::setState(state);
+        bgfx::setStencil(stencil);
         bgfx::submit(0, program);
 
         set_identity(model);
@@ -166,8 +183,34 @@ namespace rendererdepthtest {
         bgfx::setTexture(0, tex1, th2);
         bgfx::setVertexBuffer(0, vbh_plane);
 		bgfx::setState(state);
+        //bgfx::setStencil(stencil);
         bgfx::submit(0, program);
 		total_time += dt;
+
+        state =  BGFX_STATE_DEFAULT 
+                ^ BGFX_STATE_CULL_CW;
+
+        stencil =   BGFX_STENCIL_TEST_NOTEQUAL
+                  | BGFX_STENCIL_FUNC_REF(1) 
+                  | BGFX_STENCIL_FUNC_RMASK(0xFF);
+
+		set_identity(model);
+        set_scale(model, vector3(1.05, 1.05, 1.05));
+        set_translation(model, vector3(-1.0, 0.0, -1.0));
+		bgfx::setTransform(to_float_ptr(model));
+        bgfx::setTexture(0, tex1, th1);
+        bgfx::setVertexBuffer(0, vbh_cube);
+		bgfx::setState(state);
+        bgfx::setStencil(stencil);
+        bgfx::submit(0, program_outline);
+        
+        set_translation(model, vector3(2.0, 0.0, 0.0));
+		bgfx::setTransform(to_float_ptr(model));
+        bgfx::setTexture(0, tex1, th1);
+        bgfx::setVertexBuffer(0, vbh_cube);
+		bgfx::setState(state);
+        bgfx::setStencil(stencil);
+        bgfx::submit(0, program_outline);
     }
 }
 }
